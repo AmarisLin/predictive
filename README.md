@@ -42,3 +42,5 @@ https://www.bilibili.com/video/BV16Pnq6ZE2U/
 課程規則參考：https://diveai-lab.github.io/diveai-lessons/lessons/agentic-work/
 
 對方訊息間隔與恢復輸入：快模式1100ms、正常1600ms，早晨通知相隔1400ms。所有系統通知及沒電畫面都是遊戲模擬。
+
+最新操作規則：新遊戲先顯示三頁截圖教學，可從首頁或下方遊玩教學重看。只可點預設訊息逐字帶入，再按↑送出；不提供手動輸入、候選詞及字鍵輸入。地址仍需進詞庫複製再按貼上地址。教學依序框出預設訊息、查看詞庫、查看照片，截圖放assets/tutorial-*.jpg。對話改為「先檢查一下。」。此規則取代本文舊版自由輸入描述。
