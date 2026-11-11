@@ -1,6 +1,6 @@
 /* 對話、回覆提示及固定觀察句。所有資料皆為虛構。 */
 window.PREDICTIVE_STORY=[
-{id:'arrival',time:'02:31',incoming:['還沒睡？'],prompt:'睡不著，輸入法好像怪怪的。',reply:['怎樣怪？']},
+{id:'arrival',time:'02:31',incoming:['蘇蘇','還沒睡？'],prompt:'睡不著，輸入法好像怪怪的。',reply:['怎樣怪？']},
 {id:'auto-send',time:'02:32',incoming:['是不是又按到候選字。'],prompt:'我打沒幾個字，它就自己送出去了。',auto:true,reply:['？','你在說誰。']},
 {id:'explain',time:'02:33',incoming:['我看你傳來的字都很正常啊。'],prompt:'剛剛那句不是我傳的，我一個人住。',reply:['你是不是太睏了。','去看一下個人詞庫啊。']},
 {id:'dictionary',time:'02:34',incoming:['先檢查一下。'],prompt:'這些我都沒打過。',gate:'dictionary',reply:['你是不是以前亂按過。','清一下詞庫就好了。']},
