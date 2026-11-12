@@ -6,25 +6,29 @@ const phases=['chat','warning','black','dawn','morning'],cloudSteps=['locked','o
 const textOK=(x,max=180)=>typeof x==='string'&&x.length<=max;
 const listOK=(xs,max=180,count=5)=>Array.isArray(xs)&&xs.length<=count&&xs.every(x=>textOK(x,max));
 const finalPhrase=t=>String(t).replace(/头/g,'頭').replace(/\s+/g,'').includes('看它的頭');
-function initial(){return{version:6,index:0,entries:[],inbox:[...S[0].incoming],draft:'',lexicon:[...clone(window.PREDICTIVE_WORDS),{word:ADDRESS,uses:1,lastUsed:'昨天 18:20'}],clearCount:0,predictionOn:true,action:'他還醒著',autoPending:false,autoText:'',lexiconViewed:false,photoViewed:false,photoSent:false,evidence:{draft:false,image:false},archived:false,phase:'chat',morningShown:0,addressCopied:false,clipboard:'',cloudStep:'locked',cloudLoggedIn:false,cloudSynced:false,epilogue:'locked',epTurn:0,epDraft:'',epMessages:[]};}
+function initial(){return{version:6,aningCalled:false,index:0,entries:[],inbox:[...S[0].incoming],draft:'',lexicon:[...clone(window.PREDICTIVE_WORDS),{word:ADDRESS,uses:1,lastUsed:'昨天 18:20'}],clearCount:0,predictionOn:true,action:'他還醒著',autoPending:false,autoText:'',lexiconViewed:false,photoViewed:false,photoSent:false,evidence:{draft:false,image:false},archived:false,phase:'chat',morningShown:0,addressCopied:false,clipboard:'',cloudStep:'locked',cloudLoggedIn:false,cloudSynced:false,epilogue:'locked',epTurn:0,epDraft:'',epMessages:[]};}
 function learn(s,word){const found=s.lexicon.find(w=>w.word===word);if(found){found.uses++;found.lastUsed='剛剛';}else{s.lexicon.push({word,uses:1,lastUsed:'剛剛'});s.lexicon=s.lexicon.slice(-150);}}
 function ensureAddress(s){if(s.index===addressIndex&&!s.lexicon.some(w=>w.word===ADDRESS))learn(s,ADDRESS);}
 function observe(s,action){const n=clone(s);if(n.phase!=='chat')return n;n.action=action;if(n.clearCount>0&&n.index>=addressIndex)learn(n,action);return n;}
 function predict(s,text=s.draft){
- if(s.epilogue==='friend')return s.epTurn===2?['他在打字','。','先這樣']:[...window.PREDICTIVE_FRIEND.candidates[s.epTurn]];
- if(s.epilogue==='warning')return['不要看','不要看','不要看'];
- if(s.phase!=='chat')return['不能看','不能看','不能看'];
- const first=s.index===0?'睡不著':s.action,normal=String(text).trim()?['。','先這樣']:['我','你'];
- if(s.index===last){if(text==='看')normal.splice(0,2,'它的','一下');else if(text==='看它')normal.splice(0,2,'的頭','一下');else if(text==='看它的')normal.splice(0,2,'頭','意思');}
- return s.predictionOn?[first,...normal]:[first,'',''];
+ if(s.epilogue==='warning')return Array(4).fill('不要看');
+ if(s.epilogue==='friend'){const rows=[['睡著了','在床上','不會回來了','晚安'],['床底下','她床上','這裡','在哪'],['還沒','不要回頭','不要看','先這樣']];return rows[s.epTurn];}
+ if(s.phase!=='chat')return Array(4).fill('不能看');
+ const pool=['我','你','晚安','這','那','我們','救','是','不是','有','沒有'];
+ const normal=[...pool];for(let i=normal.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[normal[i],normal[j]]=[normal[j],normal[i]];}
+ if(s.autoPending)return[s.autoText,...normal.slice(0,3)];
+ const observer=S[s.index].observer;
+ const special=/照片|詞庫|地址|比對/.test(s.action);
+ const first=observer||(special?s.action:(Math.random()<.5?'她在打字':'她在看訊息'));
+ return s.predictionOn?[first,...normal.slice(0,3)]:[first,'','',''];
 }
 function draft(s,text,commit=true){
  if(s.epilogue==='friend'){const n=clone(s);n.epDraft=Array.from(String(text)).slice(0,80).join('');if(commit&&n.epTurn===2&&n.epDraft.replace(/头/g,'頭').replace(/\s/g,'').includes('我不看它的頭'))n.epilogue='warning';return n;}
  if(s.phase!=='chat'||s.autoPending)return clone(s);
  let n=clone(s);const old=n.draft;n.draft=Array.from(String(text)).slice(0,80).join('');if(!commit)return n;
  n=observe(n,Array.from(n.draft).length<Array.from(old).length?'他把字刪掉了':S[n.index].observer||'他在打字');
- if(n.index===last&&finalPhrase(n.draft)){n.phase='warning';return n;}
- if(S[n.index].auto&&Array.from(n.draft).length>=2){n.autoPending=true;n.autoText=predict(n)[0];}return n;
+ if(n.index===last&&n.aningCalled&&finalPhrase(n.draft)){n.phase='warning';return n;}
+ if(S[n.index].auto&&Array.from(n.draft).length>=2){n.autoText=predict(n)[0];n.autoPending=true;n.action=n.autoText;}return n;
 }
 function append(s,word){return draft(s,s.draft+word);}
 function dictionary(s){const n=observe(s,'他在看詞庫');n.lexiconViewed=true;ensureAddress(n);return n;}
@@ -36,7 +40,7 @@ function photo(s){if(s.index<photoIndex)return clone(s);const n=observe(s,'他�
 function compare(s){const n=clone(s);if(n.photoViewed&&n.photoSent){n.evidence.image=true;n.action='他在比對照片';}return n;}
 function inspect(s,index){const n=clone(s);if(n.entries[index]?.automatic)n.evidence.draft=true;return n;}
 function archive(s){return{...clone(s),archived:true};}
-function hint(s){if(s.epilogue==='friend'||s.epilogue==='warning')return window.PREDICTIVE_FRIEND.prompts[s.epTurn];if(S[s.index].id==='clear-dictionary'&&s.clearCount>0)return'清掉了。';return S[s.index].prompt;}
+function hint(s){if(s.phase==='chat'&&s.index===last&&!s.aningCalled)return'阿寧';if(s.epilogue==='friend'||s.epilogue==='warning')return window.PREDICTIVE_FRIEND.prompts[s.epTurn];if(S[s.index].id==='clear-dictionary'&&s.clearCount>0)return'清掉了。';return S[s.index].prompt;}
 function submit(s,{photo=false,automatic=false}={}){
  const n=clone(s),node=S[n.index],original=n.draft.trim();
  if(n.phase!=='chat')return{state:n,error:'finished'};
@@ -45,6 +49,7 @@ function submit(s,{photo=false,automatic=false}={}){
  if(node.gate==='compare'&&!n.evidence.image)return{state:n,error:'compare'};
  if(node.gate==='photo'&&(!photo||!n.photoViewed))return{state:n,error:'photo'};
  if(photo&&node.gate!=='photo')return{state:n,error:'photo'};
+ if(n.index===last&&!n.aningCalled){if(original!=='阿寧')return{state:n,error:'aning'};n.aningCalled=true;n.draft='';return{state:n,special:'aning',entry:{text:'阿寧',original:'阿寧',photo:false,automatic:false,read:false,reply:[]},error:null};}
  if(n.index===last)return{state:n,error:'head'};
  if(node.auto&&!automatic||n.autoPending&&!automatic||automatic&&(!n.autoPending||!node.auto))return{state:n,error:'automatic'};
  if(!photo&&!original)return{state:n,error:'empty'};
@@ -68,9 +73,10 @@ function friendOffer(s){const n=clone(s);if(n.cloudSynced&&['cloud-wait','cloud-
 function friendDecision(s,go){const n=clone(s);if(n.epilogue==='chat-offer')n.epilogue=go?'friend':'cloud-read';return n;}
 function friendSend(s){const n=clone(s);if(n.epilogue!=='friend'||n.epTurn>=2||n.epDraft.trim()!==window.PREDICTIVE_FRIEND.prompts[n.epTurn])return{state:n,error:'friend'};n.epMessages.push(n.epDraft.trim());n.epTurn++;n.epDraft='';return{state:n,error:null};}
 function powerAdvance(s){const n=clone(s),next={warning:'powerblack',powerblack:'battery',battery:'powernotice',powernotice:'done'};if(next[n.epilogue])n.epilogue=next[n.epilogue];return n;}
-function recordText(s){const lines=['聯想詞predictive','對話紀錄',''];for(const e of s.entries){lines.push('['+S[e.turn].time+']');e.incoming.forEach(t=>lines.push('阿寧：'+t));lines.push('我：'+(e.photo?'照片（已傳送）':e.text)+(e.read?'':'（未讀）'));if(e.automatic)lines.push('輸入框原文：'+e.original,'送出方式：自動');e.reply.forEach(t=>lines.push('阿寧：'+t));lines.push('');}s.inbox.forEach(t=>lines.push('阿寧：'+t));if(s.draft)lines.push('未送出草稿：'+s.draft);if(s.phase!=='chat')lines.push('聯想詞：不能看 / 不能看 / 不能看');if(s.phase==='morning'){lines.push('','[07:12]');window.PREDICTIVE_MORNING.slice(0,s.morningShown).forEach(m=>lines.push('阿寧：'+m.text));}if(s.cloudSynced){lines.push('','雲端詞庫：最近7條／總學習記錄2347筆／來源1台裝置');C.latest.forEach(w=>lines.push(w.word+' · '+w.lastUsed));}if(s.epMessages.length){lines.push('','[第七天 · 阿寧的手機／蘇蘇聊天室]');window.PREDICTIVE_FRIEND.history.forEach(t=>lines.push('阿寧：'+t+'（未讀）'));s.epMessages.forEach(t=>lines.push('阿寧：'+t+'（未讀）'));}if(s.epDraft)lines.push('阿寧未送出草稿：'+s.epDraft);if(['warning','powerblack','battery','powernotice','done'].includes(s.epilogue))lines.push('聯想詞：不要看 / 不要看 / 不要看');lines.push('','已複製地址：'+s.addressCopied,'清除詞庫次數：'+s.clearCount,'已比對照片：'+s.evidence.image,'雲端同步完成：'+s.cloudSynced,'原始草稿已保留：'+s.archived);return lines.join('\n');}
+function recordText(s){const lines=['聯想詞predictive','對話紀錄',''];for(const e of s.entries){lines.push('['+S[e.turn].time+']');e.incoming.forEach(t=>lines.push('阿寧：'+t));lines.push('我：'+(e.photo?'照片（已傳送）':e.text)+(e.read?'':'（未讀）'));if(e.automatic)lines.push('輸入框原文：'+e.original,'送出方式：自動');e.reply.forEach(t=>lines.push('阿寧：'+t));lines.push('');}s.inbox.forEach(t=>lines.push('阿寧：'+t));if(s.aningCalled)lines.push('我：阿寧（未讀）');if(s.draft)lines.push('未送出草稿：'+s.draft);if(s.phase!=='chat')lines.push('聯想詞：不能看 / 不能看 / 不能看');if(s.phase==='morning'){lines.push('','[07:12]');window.PREDICTIVE_MORNING.slice(0,s.morningShown).forEach(m=>lines.push('阿寧：'+m.text));}if(s.cloudSynced){lines.push('','雲端詞庫：最近7條／總學習記錄2347筆／來源1台裝置');C.latest.forEach(w=>lines.push(w.word+' · '+w.lastUsed));}if(s.epMessages.length){lines.push('','[第七天 · 阿寧的手機／蘇蘇聊天室]');window.PREDICTIVE_FRIEND.history.forEach(t=>lines.push('阿寧：'+t+'（未讀）'));s.epMessages.forEach(t=>lines.push('阿寧：'+t+'（未讀）'));}if(s.epDraft)lines.push('阿寧未送出草稿：'+s.epDraft);if(['warning','powerblack','battery','powernotice','done'].includes(s.epilogue))lines.push('聯想詞：不要看 / 不要看 / 不要看');lines.push('','已複製地址：'+s.addressCopied,'清除詞庫次數：'+s.clearCount,'已比對照片：'+s.evidence.image,'雲端同步完成：'+s.cloudSynced,'原始草稿已保留：'+s.archived);return lines.join('\n');}
 function valid(raw){
  if(!raw||![5,6].includes(raw.version))return null;const s=clone(raw);if(s.version===5){s.version=6;s.epilogue=s.cloudSynced?'cloud-wait':'locked';s.epTurn=0;s.epDraft='';s.epMessages=[];}
+ if(s.aningCalled===undefined)s.aningCalled=s.phase!=='chat';if(typeof s.aningCalled!=='boolean'||s.aningCalled&&s.index!==last)return null;
  if(!Number.isInteger(s.index)||s.index<0||s.index>=S.length||!Array.isArray(s.entries)||s.entries.length!==s.index||!listOK(s.inbox)||!textOK(s.draft,80)||!textOK(s.action,30)||!textOK(s.autoText,30)||!phases.includes(s.phase)||!Array.isArray(s.lexicon)||s.lexicon.length>150||!Number.isInteger(s.clearCount)||s.clearCount<0||s.clearCount>100||!cloudSteps.includes(s.cloudStep))return null;
  for(const k of ['predictionOn','autoPending','lexiconViewed','photoViewed','photoSent','archived','addressCopied','cloudLoggedIn','cloudSynced'])if(typeof s[k]!=='boolean')return null;
  if(!textOK(s.clipboard,80)||s.clipboard!==(s.addressCopied?ADDRESS:'')||!s.evidence||typeof s.evidence.draft!=='boolean'||typeof s.evidence.image!=='boolean')return null;
@@ -79,7 +85,7 @@ function valid(raw){
  if(s.index>addressIndex&&!s.addressCopied||s.photoSent!==(s.index>photoIndex)||s.photoViewed&&s.index<photoIndex||s.evidence.image&&(!s.photoSent||!s.photoViewed)||s.evidence.draft&&!s.entries.some(e=>e.automatic))return null;
  if(s.index>=4&&!s.lexiconViewed||s.index>compareIndex&&!s.evidence.image)return null;
  if(s.autoPending&&(s.index!==1||Array.from(s.draft).length<2||!s.autoText||s.phase!=='chat')||!s.autoPending&&s.autoText)return null;
- if(s.phase!=='chat'&&(s.index!==last||!finalPhrase(s.draft)))return null;
+ if(s.phase!=='chat'&&(s.index!==last||!s.aningCalled||!finalPhrase(s.draft)))return null;
  if(!Number.isInteger(s.morningShown)||s.morningShown<0||s.morningShown>2||s.phase!=='morning'&&s.morningShown!==0)return null;
  if(s.cloudStep!=='locked'&&!cloudAvailable(s)||s.cloudStep==='locked'&&(s.cloudLoggedIn||s.cloudSynced)||['confirm','syncing','dictionary'].includes(s.cloudStep)&&!s.cloudLoggedIn||s.cloudSynced&&!s.cloudLoggedIn||s.cloudStep==='dictionary'&&!s.cloudSynced)return null;
  const epSteps=['locked','cloud-wait','cloud-read','chat-offer','friend','warning','powerblack','battery','powernotice','done'];

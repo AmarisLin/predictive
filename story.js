@@ -1,16 +1,16 @@
 /* 對話、回覆提示及固定觀察句。所有資料皆為虛構。 */
 window.PREDICTIVE_STORY=[
-{id:'arrival',time:'02:31',incoming:['蘇蘇','還沒睡？'],prompt:'睡不著，輸入法好像怪怪的。',reply:['怎樣怪？']},
-{id:'auto-send',time:'02:32',incoming:['是不是又按到候選字。'],prompt:'我打沒幾個字，它就自己送出去了。',auto:true,reply:['？','你在說誰。']},
-{id:'explain',time:'02:33',incoming:['我看你傳來的字都很正常啊。'],prompt:'剛剛那句不是我傳的，我一個人住。',reply:['你是不是太睏了。','去看一下個人詞庫啊。']},
-{id:'dictionary',time:'02:34',incoming:['先檢查一下。'],prompt:'這些我都沒打過。',gate:'dictionary',reply:['你是不是以前亂按過。','清一下詞庫就好了。']},
-{id:'clear-dictionary',time:'02:35',incoming:['鍵盤設定裡應該就有。'],prompt:'先不清，我再試試。',reply:['你都沒清。','那你再試一下啊。'],replyAfterClear:['那應該好了。','再打幾個字看看。']},
-{id:'address',time:'02:36',incoming:['對了，把你說的那家店地址傳給我。'],prompt:'到詞庫複製店家地址。',gate:'address',reply:['好，收到了。']},
-{id:'something-nearby',time:'02:37',incoming:['怎麼還沒睡。'],prompt:'等一下，我旁邊好像有東西。',reply:['什麼東西？','拍給我看看啊。']},
-{id:'photo',time:'02:38',incoming:['拍你現在看到的地方就好。'],prompt:'按 ＋ 查看照片，再傳給朋友。',gate:'photo',reply:['就一條走廊啊。','哪裡有人？']},
-{id:'he-is-typing',time:'02:39',incoming:['你是不是把那個轉角看成人了。'],prompt:'照片裡明明有人。',gate:'compare',observer:'他在打字',reply:['我放大看了，真的沒有。']},
-{id:'he-noticed',time:'02:40',incoming:['可能只是陰影吧。'],prompt:'傳出去以後，人就不見了。',observer:'他發現了',reply:['你是不是傳錯張。','我真的要睡了。']},
-{id:'goodnight',time:'02:42',incoming:['明天再說吧。'],prompt:'好，晚安。',reply:['晚安。']},
+{id:'arrival',time:'02:31',incoming:['蘇蘇','怎麼還沒睡'],prompt:'睡不著，輸入法好像怪怪的。',reply:['嗯？我看看']},
+{id:'auto-send',time:'02:32',incoming:['剛剛那句怎麼了'],prompt:'我打沒幾個字，它就自己送出去了。',auto:true,reply:['妳沒按到？']},
+{id:'explain',time:'02:33',incoming:['還是一樣嗎'],prompt:'剛剛那句不是我傳的，我一個人住。',reply:['那去設定看看']},
+{id:'dictionary',time:'02:34',incoming:['詞庫裡有嗎'],prompt:'這些我都沒打過。',gate:'dictionary',reply:['先清掉試試？']},
+{id:'clear-dictionary',time:'02:35',incoming:['我等妳'],prompt:'先不清，我再試試。',reply:['好，那再試一次'],replyAfterClear:['再打看看']},
+{id:'address',time:'02:36',incoming:['對了，那家店地址再傳我一下'],prompt:'到詞庫複製店家地址。',gate:'address',reply:['收到了']},
+{id:'something-nearby',time:'02:37',incoming:['還有怪字嗎'],prompt:'等一下，我旁邊好像有東西。',reply:['在哪？','拍給我看看']},
+{id:'photo',time:'02:38',incoming:['慢慢來'],prompt:'按 ＋ 查看照片，再傳給朋友。',gate:'photo',reply:['哪裡？轉角嗎？']},
+{id:'he-is-typing',time:'02:39',incoming:['我這邊看不太到'],prompt:'照片裡明明有人。',gate:'compare',observer:'他在打字',reply:['要不要開個燈']},
+{id:'he-noticed',time:'02:40',incoming:['我再看一下'],prompt:'傳出去以後，人就不見了。',observer:'他發現了',reply:['可能是影子','別嚇自己了']},
+{id:'goodnight',time:'02:42',incoming:['睡吧，明天再弄'],prompt:'好，晚安。',reply:['晚安，蘇蘇']},
 {id:'are-you-asleep',time:'02:45',incoming:[],prompt:'睡了嗎？',unread:true,reply:[]},
 {id:'look-at-its-head',time:'02:46',incoming:[],prompt:'看它的頭',reply:[]}
 

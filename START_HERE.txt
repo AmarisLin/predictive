@@ -1,0 +1,8 @@
+聯想詞predictive 作業完成版
+
+1. 解壓縮後，雙擊 index.html 可遊玩。記得開啟聲音。
+2. AGENTS.md 是本次作業重點：AI開發規則。
+3. docs/submission.txt 可貼到作業繳交欄；請補自己的學校、學號、系級、姓名。
+4. 上傳GitHub時，請上傳 predictive 裡的內容到儲存庫根目錄，保留assets、docs、scripts子資料夾。步驟見docs/deploy.md。
+5. 目前完成版：https://apex-ai-racing-lab.miwanman8741.chatgpt.site/
+6. 本包尚未自動更新GitHub；建議上傳後檢查Pages。
